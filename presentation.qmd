@@ -68,23 +68,23 @@ lulc_cats <- tibble::tribble(
 
 # define intuitive colors for land cover types
 landuse_colors <- c(
-  "Cultivated Crops" = "darkgreen",
-  "Shrub_Scrub" = "tan",
-  "Grassland_Herbaceous" = "yellowgreen",
-  "Developed Open Space" = "#ffcccc",
-  "Developed Low Intensity" = "#ff9999",
-  "Developed Medium Intensity" = "#ff6666",
-  "Developed High Intensity" = "#cc0000",
-  "Deciduous Forest" = "forestgreen",
-  "Evergreen Forest" = "darkolivegreen",
-  "Mixed Forest" = "mediumseagreen",
-  "Pasture_Hay" = "lightgreen",
-  "Woody Wetlands" = "deepskyblue",
+  "Cultivated Crops"             = "darkgreen",
+  "Shrub_Scrub"                  = "tan",
+  "Grassland_Herbaceous"         = "yellowgreen",
+  "Developed Open Space"         = "#ffcccc",
+  "Developed Low Intensity"      = "#ff9999",
+  "Developed Medium Intensity"   = "#ff6666",
+  "Developed High Intensity"     = "#cc0000",
+  "Deciduous Forest"             = "forestgreen",
+  "Evergreen Forest"             = "darkolivegreen",
+  "Mixed Forest"                 = "mediumseagreen",
+  "Pasture_Hay"                  = "lightgreen",
+  "Woody Wetlands"               = "deepskyblue",
   "Emergent Herbaceous Wetlands" = "lightblue",
   "Barren Land (Rock_Sand_Clay)" = "burlywood",
-  "Open Water" = "blue",
-  "Perennial Ice_Snow" = "lightgray",
-  "NoData" = "gray"
+  "Open Water"                   = "blue",
+  "Perennial Ice_Snow"           = "lightgray",
+  "NoData"                       = "gray"
 )
 
 ```
@@ -123,6 +123,15 @@ sites_annotated <- sites |>
 
 ```
 
+---
+
+::: {.layout-ncol-2}
+![](images/P1010724.JPG)
+![](images/P1010732.JPG)
+:::
+
+---
+
 ## timeline
 
 ```{r}
@@ -149,7 +158,8 @@ ggplot2::ggplot(sites_annotated, ggplot2::aes(
   ) +
   ggplot2::theme_minimal() +
   ggplot2::theme(
-    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+    axis.text.y = ggplot2::element_text(angle = 45, hjust = 1)
   )
 
 ```
@@ -177,12 +187,12 @@ leaflet::leaflet(sites_annotated) |>
     radius = 6,
     fillOpacity = 0.8,
     stroke = FALSE
-  ) |>
-leaflet::addLegend(
-  position = "bottomright",
-  colors = landuse_colors,
-  labels = names(landuse_colors),
-  title = "Land Cover"
-)
+  )
+# leaflet::addLegend(
+#   position = "bottomright",
+#   colors = landuse_colors,
+#   labels = names(landuse_colors),
+#   title = "Land Cover"
+# )
 
 ```
