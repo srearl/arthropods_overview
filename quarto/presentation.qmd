@@ -1,0 +1,58 @@
+---
+title: "Sites Timeline & Map"
+format:
+  revealjs:
+    theme: solarized
+    transition: fade
+    slide-number: true
+execute:
+  echo: true
+  freeze: false
+---
+
+## Timeline of Sites
+
+```{r}
+# Placeholder for timeline chart
+# Use ggplot2 or plotly for interactive timeline
+# Color code by dominant land use (to be added)
+library(ggplot2)
+# Example data frame
+sites <- data.frame(
+  site_code = c("A", "B"),
+  start_date = as.Date(c("2020-01-01", "2021-06-01")),
+  end_date = as.Date(c("2022-01-01", "2023-06-01")),
+  landuse = c("Urban", "Agriculture")
+)
+ggplot(sites, aes(x = site_code, ymin = start_date, ymax = end_date, color = landuse)) +
+  geom_linerange(size = 6) +
+  labs(y = "Date", x = "Site", color = "Land Use") +
+  theme_minimal()
+```
+
+---
+
+## Map of Sites
+
+```{r}
+# Placeholder for map
+# Use leaflet for interactive map
+library(leaflet)
+sites <- data.frame(
+  site_code = c("A", "B"),
+  lat = c(33.5, 33.6),
+  long = c(-112.1, -112.2),
+  landuse = c("Urban", "Agriculture")
+)
+leaflet(sites) %>%
+  addTiles() %>%
+  addCircleMarkers(~long, ~lat, color = ~ifelse(landuse == "Urban", "blue", "green"), label = ~site_code)
+```
+
+---
+
+## Next Steps
+
+- Import and process raster land use data
+- Update charts and map with real data
+- Publish to GitHub Pages

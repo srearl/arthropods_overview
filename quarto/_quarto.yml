@@ -1,0 +1,25 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - index.qmd
+    - presentation.qmd
+
+website:
+  title: "Arthropods Sites Overview"
+  navbar:
+    left:
+      - text: Home
+        href: index.qmd
+      - text: Presentation
+        href: presentation.qmd
+  repo-url: https://github.com/srearl/arthropods_overview
+  repo-actions: [edit, issue]
+  page-footer:
+    left: "Published with Quarto"
+    right: "&copy; 2025 S. Earl"
+
+format:
+  html:
+    theme: cosmo
+    toc: true

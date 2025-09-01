@@ -1,0 +1,9 @@
+---
+title: "Arthropods Sites Overview"
+format: html
+---
+
+Welcome to the overview of arthropod monitoring sites in the Phoenix metropolitan area.
+
+- View the presentation for interactive charts and maps.
+- Data and code available in this repository.
