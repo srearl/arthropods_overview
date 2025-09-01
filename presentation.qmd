@@ -10,49 +10,179 @@ execute:
   freeze: false
 ---
 
-## Timeline of Sites
 
 ```{r}
-# Placeholder for timeline chart
-# Use ggplot2 or plotly for interactive timeline
-# Color code by dominant land use (to be added)
-library(ggplot2)
-# Example data frame
-sites <- data.frame(
-  site_code = c("A", "B"),
-  start_date = as.Date(c("2020-01-01", "2021-06-01")),
-  end_date = as.Date(c("2022-01-01", "2023-06-01")),
-  landuse = c("Urban", "Agriculture")
+#| echo: false
+#| output: false
+
+source("~/Documents/localSettings/pg_local.R") 
+pg <- pg_local_connect("caplter")
+
+sites <- DBI::dbGetQuery(
+  conn      = pg,
+  statement = "
+SELECT 
+  sites.site_code,
+  COALESCE(mcd.lat, sites.lat) AS lat,
+  COALESCE(mcd.long, sites.long) AS long,
+  sites.start_date,
+  sites.end_date
+FROM arthropods.sites
+LEFT JOIN (
+  SELECT
+    site_id,
+    AVG(lat) AS lat,
+    AVG(long) AS long
+  FROM arthropods.sites_locations 
+  GROUP BY site_id
+) AS mcd ON mcd.site_id = sites.id
+;
+")
+
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+lulc_cats <- tibble::tribble(
+  ~Value, ~Description,
+  250,"NoData",
+  11,"Open Water",
+  12,"Perennial Ice_Snow",
+  21,"Developed Open Space",
+  22,"Developed Low Intensity",
+  23,"Developed Medium Intensity",
+  24,"Developed High Intensity",
+  31,"Barren Land (Rock_Sand_Clay)",
+  41,"Deciduous Forest",
+  42,"Evergreen Forest",
+  43,"Mixed Forest",
+  52,"Shrub_Scrub",
+  71,"Grassland_Herbaceous",
+  81,"Pasture_Hay",
+  82,"Cultivated Crops",
+  90,"Woody Wetlands",
+  95,"Emergent Herbaceous Wetlands"
 )
-ggplot(sites, aes(x = site_code, ymin = start_date, ymax = end_date, color = landuse)) +
-  geom_linerange(size = 6) +
-  labs(y = "Date", x = "Site", color = "Land Use") +
-  theme_minimal()
+
+# define intuitive colors for land cover types
+landuse_colors <- c(
+  "Cultivated Crops" = "darkgreen",
+  "Shrub_Scrub" = "tan",
+  "Grassland_Herbaceous" = "yellowgreen",
+  "Developed Open Space" = "#ffcccc",
+  "Developed Low Intensity" = "#ff9999",
+  "Developed Medium Intensity" = "#ff6666",
+  "Developed High Intensity" = "#cc0000",
+  "Deciduous Forest" = "forestgreen",
+  "Evergreen Forest" = "darkolivegreen",
+  "Mixed Forest" = "mediumseagreen",
+  "Pasture_Hay" = "lightgreen",
+  "Woody Wetlands" = "deepskyblue",
+  "Emergent Herbaceous Wetlands" = "lightblue",
+  "Barren Land (Rock_Sand_Clay)" = "burlywood",
+  "Open Water" = "blue",
+  "Perennial Ice_Snow" = "lightgray",
+  "NoData" = "gray"
+)
+
+```
+
+```{r}
+#| echo: false
+#| output: false
+
+lulc <- raster::raster("~/Desktop/Annual_NLCD_LndCov_2024_CU_C1V1.tif")
+
+# Convert sites to sf object (if not already)
+sites_sf <- sf::st_as_sf(
+  x      = sites,
+  coords = c("long", "lat"),
+  crs    = 4326
+)
+
+sites_sf <- sf::st_transform(
+  x   = sites_sf,
+  crs = sf::st_crs(lulc)
+)
+
+sites_annotated <- sites |>
+  dplyr::mutate(
+    landuse = raster::extract(lulc, sf::st_coordinates(sites_sf)),
+    end_date = dplyr::case_when(
+      is.na(end_date) ~ as.Date(Sys.Date()),
+      TRUE ~ end_date
+    ),
+    start_date = as.Date(start_date),
+    end_date = as.Date(end_date)
+  ) |>
+  dplyr::left_join(lulc_cats, by = c("landuse" = "Value")) |>
+  dplyr::mutate(marker_color = landuse_colors[Description]) |>
+  dplyr::arrange(Description, site_code)
+
+```
+
+## timeline
+
+```{r}
+#| echo: false
+
+# Namespace: timeline_chart
+#' Plot horizontal timeline chart of sites
+#' @param sites data.frame with site_code, start_date, end_date, Description
+#' @return ggplot object
+
+ggplot2::ggplot(sites_annotated, ggplot2::aes(
+  y     = site_code,
+  x     = start_date,
+  xend  = end_date,
+  color = Description
+)) +
+  ggplot2::geom_segment(size = 1.5, ggplot2::aes(yend = site_code)) +
+  ggplot2::scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  ggplot2::scale_color_manual(values = landuse_colors) +
+  ggplot2::labs(
+    x     = "Year",
+    y     = "Site",
+    color = "Land Cover"
+  ) +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(
+    axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)
+  )
+
 ```
 
 ---
 
-## Map of Sites
+## map of sites
 
 ```{r}
-# Placeholder for map
-# Use leaflet for interactive map
-library(leaflet)
-sites <- data.frame(
-  site_code = c("A", "B"),
-  lat = c(33.5, 33.6),
-  long = c(-112.1, -112.2),
-  landuse = c("Urban", "Agriculture")
+#| echo: false
+
+pal <- leaflet::colorFactor(
+  palette = unique(sites_annotated$marker_color),
+  domain  = sites_annotated$Description
 )
-leaflet(sites) %>%
-  addTiles() %>%
-  addCircleMarkers(~long, ~lat, color = ~ifelse(landuse == "Urban", "blue", "green"), label = ~site_code)
+
+leaflet::leaflet(sites_annotated) |>
+  leaflet::addTiles() |>
+  leaflet::addCircleMarkers(
+    lng = ~long,
+    lat = ~lat,
+    fillColor = ~ pal(Description),
+    color = "black",
+    label = ~site_code,
+    radius = 6,
+    fillOpacity = 0.8,
+    stroke = FALSE
+  ) |>
+leaflet::addLegend(
+  position = "bottomright",
+  colors = landuse_colors,
+  labels = names(landuse_colors),
+  title = "Land Cover"
+)
+
 ```
-
----
-
-## Next Steps
-
-- Import and process raster land use data
-- Update charts and map with real data
-- Publish to GitHub Pages
