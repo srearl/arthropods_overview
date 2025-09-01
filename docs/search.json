@@ -1,0 +1,30 @@
+[
+  {
+    "objectID": "presentation.html#timeline-of-sites",
+    "href": "presentation.html#timeline-of-sites",
+    "title": "Sites Timeline & Map",
+    "section": "Timeline of Sites",
+    "text": "Timeline of Sites\n\n# Placeholder for timeline chart\n# Use ggplot2 or plotly for interactive timeline\n# Color code by dominant land use (to be added)\nlibrary(ggplot2)\n# Example data frame\nsites &lt;- data.frame(\n  site_code = c(\"A\", \"B\"),\n  start_date = as.Date(c(\"2020-01-01\", \"2021-06-01\")),\n  end_date = as.Date(c(\"2022-01-01\", \"2023-06-01\")),\n  landuse = c(\"Urban\", \"Agriculture\")\n)\nggplot(sites, aes(x = site_code, ymin = start_date, ymax = end_date, color = landuse)) +\n  geom_linerange(size = 6) +\n  labs(y = \"Date\", x = \"Site\", color = \"Land Use\") +\n  theme_minimal()"
+  },
+  {
+    "objectID": "presentation.html#map-of-sites",
+    "href": "presentation.html#map-of-sites",
+    "title": "Sites Timeline & Map",
+    "section": "Map of Sites",
+    "text": "Map of Sites\n\n# Placeholder for map\n# Use leaflet for interactive map\nlibrary(leaflet)\nsites &lt;- data.frame(\n  site_code = c(\"A\", \"B\"),\n  lat = c(33.5, 33.6),\n  long = c(-112.1, -112.2),\n  landuse = c(\"Urban\", \"Agriculture\")\n)\nleaflet(sites) %&gt;%\n  addTiles() %&gt;%\n  addCircleMarkers(~long, ~lat, color = ~ifelse(landuse == \"Urban\", \"blue\", \"green\"), label = ~site_code)"
+  },
+  {
+    "objectID": "presentation.html#next-steps",
+    "href": "presentation.html#next-steps",
+    "title": "Sites Timeline & Map",
+    "section": "Next Steps",
+    "text": "Next Steps\n\nImport and process raster land use data\nUpdate charts and map with real data\nPublish to GitHub Pages"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Arthropods Sites Overview",
+    "section": "",
+    "text": "Welcome to the overview of arthropod monitoring sites in the Phoenix metropolitan area.\n\nView the presentation for interactive charts and maps.\nData and code available in this repository."
+  }
+]
