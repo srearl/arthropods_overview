@@ -10,7 +10,6 @@ execute:
   freeze: false
 ---
 
-
 ```{r}
 #| echo: false
 #| output: false
@@ -125,14 +124,14 @@ sites_annotated <- sites |>
 
 ---
 
-::: {.layout-ncol-2}
-![](images/P1010724.JPG)
-![](images/P1010732.JPG)
+::: {layout-ncol=2}
+![](images/P1010724.JPG){style="background:white;" width=25%; fig-align="center"}
+![](images/P1010732.JPG){style="background:white;" width=25%; fig-align="center"}
 :::
 
 ---
 
-## timeline
+### timeline
 
 ```{r}
 #| echo: false
@@ -166,7 +165,7 @@ ggplot2::ggplot(sites_annotated, ggplot2::aes(
 
 ---
 
-## map of sites
+### map of sites (all)
 
 ```{r}
 #| echo: false
@@ -188,11 +187,41 @@ leaflet::leaflet(sites_annotated) |>
     fillOpacity = 0.8,
     stroke = FALSE
   )
+
 # leaflet::addLegend(
 #   position = "bottomright",
 #   colors = landuse_colors,
 #   labels = names(landuse_colors),
 #   title = "Land Cover"
 # )
+
+```
+
+---
+
+### map of sites (current)
+
+```{r}
+#| echo: false
+
+sites_no_end <- sites_annotated |> dplyr::filter(end_date >= "2024-12-31")
+
+pal <- leaflet::colorFactor(
+  palette = unique(sites_annotated$marker_color),
+  domain  = sites_annotated$Description
+)
+
+leaflet::leaflet(sites_no_end) |>
+  leaflet::addTiles() |>
+  leaflet::addCircleMarkers(
+    lng = ~long,
+    lat = ~lat,
+    fillColor = ~ pal(Description),
+    color = "black",
+    label = ~site_code,
+    radius = 6,
+    fillOpacity = 0.8,
+    stroke = FALSE
+  )
 
 ```
