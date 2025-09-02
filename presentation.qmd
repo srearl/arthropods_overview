@@ -226,3 +226,18 @@ leaflet::leaflet(sites_no_end) |>
   )
 
 ```
+
+
+---
+
+::: {.columns}
+
+::: {.column width="50%"}
+![](images/riley_et_all.png)
+:::
+
+::: {.column width="50%"}
+![](images/uhey_et_al.png)
+:::
+
+:::
