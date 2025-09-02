@@ -118,8 +118,12 @@ sites_annotated <- sites |>
     end_date = as.Date(end_date)
   ) |>
   dplyr::left_join(lulc_cats, by = c("landuse" = "Value")) |>
-  dplyr::mutate(marker_color = landuse_colors[Description]) |>
-  dplyr::arrange(Description, site_code)
+  dplyr::mutate(
+    marker_color = landuse_colors[Description],
+    duration_days = as.numeric(end_date - start_date)
+  ) |>
+  dplyr::arrange(duration_days, Description, site_code) |>
+  dplyr::mutate(site_code = factor(site_code, levels = rev(site_code)))
 
 ```
 
